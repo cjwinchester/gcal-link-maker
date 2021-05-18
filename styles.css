@@ -1,0 +1,104 @@
+*, *:after, *:before {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box
+}
+
+body {
+  background-color: steelblue;
+  color: #111;
+  font-size: 16pt;
+  font-family: Verdana, Arial, sans-serif;
+  line-height: 1.3;
+  margin: 40px auto;
+  max-width: 768px;
+  padding: 20px;
+}
+
+a {
+  color: steelblue;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+div.main {
+  background-color: #fff;
+  margin: 10px auto;
+  padding: 30px;
+  border: 1px solid black;
+  box-shadow: 3px 3px 8px #12212d;
+}
+
+h1 {
+  margin: 0;
+}
+
+p.intro {
+  margin-bottom: 20px;
+}
+
+.noselect {
+  user-select: none;
+}
+
+input, select {
+  font-size: 20px;
+}
+
+.hide {
+  display: none;
+}
+
+label.pointer, input[type=radio], div#make-link {
+  cursor: pointer;
+}
+
+div.jawn {
+  margin-bottom: 25px;
+}
+
+input[type=text], textarea {
+  width: 100%;
+}
+
+div#make-link {
+  display: inline-block;
+  padding: 5px 10px;
+  color: #FFF;
+  background-color: steelblue;
+  text-decoration: none;
+  text-align:center;
+}
+
+div#make-link:hover {
+  background-color: #12212d;
+}
+
+div#error {
+  color: red;
+}
+
+div#error h3 {
+  margin: 20px 0 0 0;
+}
+
+div#error ul {
+  margin: 0;
+}
+
+div#results {
+  overflow-wrap: break-word;
+}
+
+div.note {
+  font-size: 0.7em;
+  text-align: right;
+}
+
+div.note a {
+  font-weight: normal;
+  color: white;
+}
