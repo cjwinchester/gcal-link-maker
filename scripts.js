@@ -3,6 +3,15 @@ function isValidEmail(email) {
     return re.test(String(email).toLowerCase());
 }
 
+const copyToClipboard = str => {
+  const el = document.createElement('textarea');
+  el.value = str;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+};
+
 function datesAreValid(start, end) {
   if (!(start instanceof Date) || isNaN(start) || !(end instanceof Date) || isNaN(end)) {
     return false;
@@ -15,14 +24,18 @@ function datesAreValid(start, end) {
   return true;
 }
 
+function timeIsValid(time) {
+
+}
+
 let base_gcal_url = 'https://calendar.google.com/calendar/render?';
 
 let input_tz = document.getElementById('timezone');
-/*
+
 let user_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 if (user_tz) {
   input_tz.value = user_tz;
-}; */
+};
 
 let data = {
   'action': 'TEMPLATE',
@@ -36,12 +49,12 @@ let data = {
 
 let duration_radio = document.querySelectorAll('input[name="duration"]');
 
-let results_div_allday = document.getElementById('allday-results');
-let results_div_specifictimes = document.getElementById('specifictimes-results');
+let timedeets_divs = document.getElementsByClassName('timedeets');
 
 function showHideTimeDivs() {
-  results_div_allday.classList.toggle('hide');
-  results_div_specifictimes.classList.toggle('hide');
+  for (let i=0; i<timedeets_divs.length; i++) {
+    timedeets_divs[i].classList.toggle('hide');
+  }
 }
 
 for (let i=0; i<duration_radio.length; i++) {
@@ -50,10 +63,10 @@ for (let i=0; i<duration_radio.length; i++) {
 }
 
 let radio_allday = document.getElementById('allday');
-let input_startdate = document.getElementById('start-date-input');
-let input_enddate = document.getElementById('end-date-input');
-let input_startdatetime = document.getElementById('start-datetime-input');
-let input_enddatetime = document.getElementById('end-datetime-input');
+let input_startdate = document.getElementById('start-date');
+let input_enddate = document.getElementById('end-date');
+let input_starttime = document.getElementById('start-time');
+let input_endtime = document.getElementById('end-time');
 let input_name = document.getElementById('name-input');
 let input_descrip = document.getElementById('description-input');
 let input_location = document.getElementById('location-input');
@@ -71,40 +84,40 @@ function parseData() {
 
   let errors = [];
 
-  let allday_checked = allday.checked ? true : false;
-  if (allday_checked) {
-    let start = new Date(input_startdate.value);
-    let end = new Date(input_enddate.value);
-    
-    if (datesAreValid(start, end)) {
-      let start_fmt = start.toISOString().split('T')[0].replace(/-/g, '');
-      let end_fmt = end.toISOString().split('T')[0].replace(/-/g, '');
-      
-      if (start_fmt === end_fmt) {
-        end.setDate(start.getDate() + 1);
-        end_fmt = end.toISOString().split('T')[0].replace(/-/g, '');
-      }
-      
+  let start = new Date(input_startdate.value);
+  let end = new Date(input_enddate.value);
+
+  if (datesAreValid(start, end)) {
+    let start_fmt = start.toISOString().split('T')[0].replace(/-/g, '');
+    let end_fmt = end.toISOString().split('T')[0].replace(/-/g, '');
+          
+    if (start_fmt === end_fmt) {
+      end.setDate(start.getDate() + 1);
+      end_fmt = end.toISOString().split('T')[0].replace(/-/g, '');
+    }
+
+    let allday_checked = allday.checked ? true : false;
+
+    if (allday_checked) {
       data['dates'] = start_fmt + '/' + end_fmt;
     } else {
-      errors.push('Something is wrong with your start or end dates.');
+      let start_time = input_starttime.value.replace(':', '');
+      let end_time = input_endtime.value.replace(':', '');
+
+      if (start_time && end_time) {
+        start_time = start_time + '00';
+        end_time = end_time + '00';
+
+        let datetime_str = `${start_fmt}T${start_time}/${end_fmt}T${end_time}`;
+        data['dates'] = datetime_str;
+        data['ctz'] = input_tz.value;
+      } else {
+        errors.push('Something is wrong with your start or end times.');
+      }
     }
   } else {
-    let start_dt = new Date(input_startdatetime.value);
-    let end_dt = new Date(input_enddatetime.value);
-    
-    if (datesAreValid(start_dt, end_dt)) {
-      let start = input_startdatetime.value.replace(/-/g, '').replace(/:/g, '') + '00';
-      let end = input_enddatetime.value.replace(/-/g, '').replace(/:/g, '') + '00';
-      data['dates'] = start + '/' + end;
-      if (input_tz.value) {
-        data['ctz'] = input_tz.value;
-      }
-    } else {
-      errors.push('Something is wrong with your start or end datetimes.');
-    }
+    errors.push('Something is wrong with your start or end dates.');
   };
-
 
   if (!input_name.value) {
     errors.push('You need a title for your event.')
@@ -145,7 +158,13 @@ function parseData() {
     error_div.innerHTML = `<h3>Errors</h3><ul>${error_html}</ul>`;
   } else {
     let url = buildUrl();
-    results_div.innerHTML = `<p><a href="${url}" target="_blank">${url}</a></p>`;
+    copyToClipboard(url);
+    results_div.innerHTML = `<p><a href="${url}" target="_blank">${url}</a></p><p class="small" id="copy-alert">Copied to clipboard</p>`;
+
+    setTimeout(function() {
+      document.getElementById('copy-alert').style.display = 'none';
+    }, 3000);
+
   }
 
 }
